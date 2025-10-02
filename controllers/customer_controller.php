@@ -1,5 +1,4 @@
 <?php
-
 require_once '../classes/customer_class.php';
 
 function login_customer_ctr($email, $password)

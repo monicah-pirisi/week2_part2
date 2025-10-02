@@ -100,6 +100,7 @@ try {
     } else {
         $response['status'] = 'error';
         $response['message'] = 'Failed to register. Please try again.';
+        $response['reason'] = $user_id;
     }
 
 } catch (Exception $e) {
