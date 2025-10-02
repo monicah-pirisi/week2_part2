@@ -75,7 +75,7 @@ class Customer extends db_connection
             }
         } catch (Exception $e) {
             error_log("Customer creation error: " . $e->getMessage());
-            return false;
+            return $e->getMessage();
         }
     }
 
