@@ -8,7 +8,7 @@ $(document).ready(function() {
         phone_number = $('#phone_number').val();
         country = $('#country').val();
         city = $('#city').val();
-        role = 2;
+        role = $('input[name="role"]:checked').val() || '0'; // Default to customer if none selected
 
         if (name == '' || email == '' || password == '' || phone_number == '' || country == '' || city == '') {
             Swal.fire({

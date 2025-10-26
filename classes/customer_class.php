@@ -1,6 +1,6 @@
 <?php
 
-require_once '../settings/db_class.php';
+require_once __DIR__ . '/../settings/db_class.php';
 
 /**
  * Customer Class for handling customer operations
@@ -21,7 +21,8 @@ class Customer extends db_connection
     public function __construct($customer_id = null)
     {
         if (!parent::db_connect()) {
-            throw new Exception("Database connection failed: " . mysqli_connect_error());
+            error_log("Database connection failed: " . mysqli_connect_error());
+            throw new Exception("Database connection failed");
         }
         if ($customer_id) {
             $this->customer_id = $customer_id;
@@ -59,6 +60,11 @@ class Customer extends db_connection
     public function createCustomer($name, $email, $password, $phone_number, $country, $city, $role)
     {
         try {
+            // Check if database connection is valid
+            if (!$this->db || mysqli_connect_errno()) {
+                throw new Exception("Database connection not available");
+            }
+            
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $this->db->prepare("INSERT INTO customer (customer_name, customer_email, customer_pass, customer_contact, customer_country, customer_city, user_role) VALUES (?, ?, ?, ?, ?, ?, ?)");
             
@@ -69,7 +75,9 @@ class Customer extends db_connection
             $stmt->bind_param("ssssssi", $name, $email, $hashed_password, $phone_number, $country, $city, $role);
             
             if ($stmt->execute()) {
-                return $this->db->insert_id;
+                $insert_id = $this->db->insert_id;
+                $stmt->close();
+                return $insert_id;
             } else {
                 throw new Exception("Database execute failed: " . $stmt->error);
             }
@@ -81,40 +89,63 @@ class Customer extends db_connection
 
     public function getCustomerByEmail($email)
     {
-        $stmt = $this->db->prepare("SELECT * FROM customer WHERE customer_email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_assoc();
+        try {
+            if (!$this->db || mysqli_connect_errno()) {
+                throw new Exception("Database connection not available");
+            }
+            
+            $stmt = $this->db->prepare("SELECT * FROM customer WHERE customer_email = ?");
+            if (!$stmt) {
+                throw new Exception("Database prepare failed: " . $this->db->error);
+            }
+            
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+            return $result;
+        } catch (Exception $e) {
+            error_log("Get customer by email error: " . $e->getMessage());
+            return false;
+        }
     }
 
     public function loginCustomer($email, $password)
     {
-        // Get customer by email
-        $customer = $this->getCustomerByEmail($email);
-        
-        if (!$customer) {
-            return array(
-                'status' => 'error',
-                'message' => 'Invalid email or password'
-            );
-        }
+        try {
+            // Get customer by email
+            $customer = $this->getCustomerByEmail($email);
+            
+            if (!$customer) {
+                return array(
+                    'status' => 'error',
+                    'message' => 'Invalid email or password'
+                );
+            }
 
-        // Verify password
-        if (password_verify($password, $customer['customer_pass'])) {
-            return array(
-                'status' => 'success',
-                'user_id' => $customer['customer_id'],
-                'user_name' => $customer['customer_name'],
-                'user_email' => $customer['customer_email'],
-                'user_role' => $customer['user_role'],
-                'user_country' => $customer['customer_country'],
-                'user_city' => $customer['customer_city'],
-                'user_phone' => $customer['customer_contact']
-            );
-        } else {
+            // Verify password
+            if (password_verify($password, $customer['customer_pass'])) {
+                return array(
+                    'status' => 'success',
+                    'user_id' => $customer['customer_id'],
+                    'user_name' => $customer['customer_name'],
+                    'user_email' => $customer['customer_email'],
+                    'user_role' => $customer['user_role'],
+                    'user_country' => $customer['customer_country'],
+                    'user_city' => $customer['customer_city'],
+                    'user_phone' => $customer['customer_contact']
+                );
+            } else {
+                return array(
+                    'status' => 'error',
+                    'message' => 'Invalid email or password'
+                );
+            }
+        } catch (Exception $e) {
+            error_log("Login customer error: " . $e->getMessage());
             return array(
                 'status' => 'error',
-                'message' => 'Invalid email or password'
+                'message' => 'An error occurred during login'
             );
         }
     }

@@ -3,11 +3,11 @@ header('Content-Type: application/json');
 require_once(__DIR__ . '/../settings/core.php');
 require_once(__DIR__ . '/../controllers/product_controller.php');
 
-// Check if user is logged in
-if (!isLoggedIn()) {
+// Check if user is logged in and is admin
+if (!isAdmin()) {
     echo json_encode([
         'success' => false,
-        'message' => 'Unauthorized access. Please login.'
+        'message' => 'Unauthorized access. Admin privileges required.'
     ]);
     exit();
 }

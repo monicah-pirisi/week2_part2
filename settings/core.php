@@ -1,4 +1,3 @@
-// Settings/core.php
 <?php
 
 // for header redirection

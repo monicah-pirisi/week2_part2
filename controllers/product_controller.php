@@ -71,12 +71,4 @@ function get_all_categories_ctr() {
     return $product->get_all_categories();
 }
 
-/**
- * Get all brands
- * @return array|false
- */
-function get_all_brands_ctr() {
-    $product = new Product();
-    return $product->get_all_brands();
-}
 ?>

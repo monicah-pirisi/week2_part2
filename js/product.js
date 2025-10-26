@@ -29,35 +29,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load all categories
 function loadCategories() {
-    fetch('../actions/fetch_brand_action.php')
+    fetch('../actions/fetch_categories.php')
         .then(response => response.json())
         .then(data => {
-            // Note: We need to create a separate fetch action for categories
-            // For now, using inline fetch
-            return fetch('../controllers/product_controller.php?action=categories');
-        })
-        .catch(error => {
-            console.error('Error loading categories:', error);
-        });
-    
-    // Temporary inline method - in production, create fetch_category_action.php
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', '../actions/fetch_categories.php', true);
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            try {
-                const data = JSON.parse(xhr.responseText);
-                if (data.success && data.data) {
-                    categoriesData = data.data;
-                    populateCategoryDropdowns();
-                }
-            } catch (e) {
+            if (data.success && data.data) {
+                categoriesData = data.data;
+                populateCategoryDropdowns();
+            } else {
+                console.error('Error loading categories:', data.message);
                 // Fallback: populate with default categories
                 populateCategoryDropdowns();
             }
-        }
-    };
-    xhr.send();
+        })
+        .catch(error => {
+            console.error('Error loading categories:', error);
+            // Fallback: populate with default categories
+            populateCategoryDropdowns();
+        });
 }
 
 // Load all brands
