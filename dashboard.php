@@ -167,9 +167,9 @@ ob_clean();
         }
 
         .action-buttons {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            flex-wrap: wrap;
             margin-top: 2rem;
         }
 
@@ -185,6 +185,7 @@ ob_clean();
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -208,6 +209,7 @@ ob_clean();
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -232,6 +234,7 @@ ob_clean();
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -266,6 +269,7 @@ ob_clean();
             margin-bottom: 1.5rem;
             transition: all 0.3s ease;
             cursor: pointer;
+            height: 100%;
         }
 
         .stats-card:hover {
@@ -303,6 +307,54 @@ ob_clean();
             margin-right: 0.5rem;
         }
 
+        /* Management Cards */
+        .management-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .management-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .management-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .management-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #D19C97;
+            filter: drop-shadow(0 4px 8px rgba(209, 156, 151, 0.4));
+        }
+
+        .management-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .management-desc {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .welcome-title {
@@ -314,15 +366,11 @@ ob_clean();
             }
             
             .action-buttons {
-                justify-content: center;
+                grid-template-columns: 1fr;
             }
             
-            .btn-custom,
-            .btn-outline-custom,
-            .btn-danger-custom {
-                flex: 1;
-                min-width: 200px;
-                justify-content: center;
+            .management-grid {
+                grid-template-columns: 1fr;
             }
             
             .stats-card {
@@ -357,7 +405,7 @@ ob_clean();
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="dashboard.php">
+            <a class="navbar-brand" href="index.php">
                 <i class="fas fa-utensils me-2"></i>Taste of Africa
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="color: white;">
@@ -366,20 +414,30 @@ ob_clean();
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
+                        <a class="nav-link" href="index.php">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="dashboard.php">
-                            <i class="fas fa-home me-1"></i>Dashboard
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                         </a>
                     </li>
                     <?php if ($user_role == 1): ?>
                         <!-- Admin menu -->
                         <li class="nav-item">
                             <a class="nav-link" href="admin/category.php">
-                                <i class="fas fa-cogs me-1"></i>Categories
+                                <i class="fas fa-list me-1"></i>Category
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" onclick="alert('Feature coming soon!')">
-                                <i class="fas fa-users me-1"></i>Users
+                            <a class="nav-link" href="admin/brand.php">
+                                <i class="fas fa-tags me-1"></i>Brand
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="admin/product.php">
+                                <i class="fas fa-box me-1"></i>Product
                             </a>
                         </li>
                     <?php endif; ?>
@@ -406,6 +464,40 @@ ob_clean();
                 <?php echo htmlspecialchars($user_type, ENT_QUOTES, 'UTF-8'); ?>
             </span>
         </div>
+
+        <?php if ($user_role == 1): ?>
+        <!-- Admin Management Section -->
+        <div class="welcome-card animate__animated animate__fadeIn">
+            <h3 class="section-title">
+                <i class="fas fa-cogs"></i>Management Dashboard
+            </h3>
+            <div class="management-grid">
+                <a href="admin/category.php" class="management-card">
+                    <i class="fas fa-list management-icon"></i>
+                    <div class="management-title">Categories</div>
+                    <div class="management-desc">Manage cuisine types and dietary options</div>
+                </a>
+                
+                <a href="admin/brand.php" class="management-card">
+                    <i class="fas fa-tags management-icon"></i>
+                    <div class="management-title">Brands</div>
+                    <div class="management-desc">Create and manage restaurant brands</div>
+                </a>
+                
+                <a href="admin/product.php" class="management-card">
+                    <i class="fas fa-box management-icon"></i>
+                    <div class="management-title">Products</div>
+                    <div class="management-desc">Add and manage menu items with images</div>
+                </a>
+                
+                <a href="#" class="management-card" onclick="alert('Feature coming soon!'); return false;">
+                    <i class="fas fa-users management-icon"></i>
+                    <div class="management-title">Users</div>
+                    <div class="management-desc">Manage user accounts and permissions</div>
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <div class="row">
             <!-- User Information -->
@@ -495,35 +587,41 @@ ob_clean();
                     <div class="action-buttons">
                         <?php if ($user_role == 1): ?>
                             <!-- Admin Actions -->
-                            <a href="admin/category.php" class="btn btn-custom">
-                                <i class="fas fa-cogs me-2"></i>Manage Categories
+                            <a href="admin/category.php" class="btn-custom">
+                                <i class="fas fa-list me-2"></i>Manage Categories
                             </a>
-                            <a href="#" class="btn btn-outline-custom" onclick="alert('Feature coming soon!')">
+                            <a href="admin/brand.php" class="btn-custom">
+                                <i class="fas fa-tags me-2"></i>Manage Brands
+                            </a>
+                            <a href="admin/product.php" class="btn-custom">
+                                <i class="fas fa-box me-2"></i>Manage Products
+                            </a>
+                            <a href="#" class="btn-outline-custom" onclick="alert('Feature coming soon!'); return false;">
                                 <i class="fas fa-users me-2"></i>Manage Users
                             </a>
-                            <a href="#" class="btn btn-outline-custom" onclick="alert('Feature coming soon!')">
+                            <a href="#" class="btn-outline-custom" onclick="alert('Feature coming soon!'); return false;">
                                 <i class="fas fa-chart-bar me-2"></i>Analytics
                             </a>
-                            <a href="#" class="btn btn-outline-custom" onclick="alert('Feature coming soon!')">
+                            <a href="#" class="btn-outline-custom" onclick="alert('Feature coming soon!'); return false;">
                                 <i class="fas fa-cog me-2"></i>Settings
                             </a>
                         <?php else: ?>
                             <!-- Restaurant Owner Actions -->
-                            <a href="#" class="btn btn-custom" onclick="alert('Feature coming soon!')">
+                            <a href="#" class="btn-custom" onclick="alert('Feature coming soon!'); return false;">
                                 <i class="fas fa-plus me-2"></i>Add Restaurant
                             </a>
-                            <a href="#" class="btn btn-outline-custom" onclick="alert('Feature coming soon!')">
+                            <a href="#" class="btn-outline-custom" onclick="alert('Feature coming soon!'); return false;">
                                 <i class="fas fa-edit me-2"></i>Edit Profile
                             </a>
-                            <a href="#" class="btn btn-outline-custom" onclick="alert('Feature coming soon!')">
+                            <a href="#" class="btn-outline-custom" onclick="alert('Feature coming soon!'); return false;">
                                 <i class="fas fa-chart-bar me-2"></i>Analytics
                             </a>
-                            <a href="#" class="btn btn-outline-custom" onclick="alert('Feature coming soon!')">
+                            <a href="#" class="btn-outline-custom" onclick="alert('Feature coming soon!'); return false;">
                                 <i class="fas fa-comments me-2"></i>Reviews
                             </a>
                         <?php endif; ?>
                         
-                        <a href="login/logout.php" class="btn btn-danger-custom" onclick="return confirm('Are you sure you want to logout?')">
+                        <a href="login/logout.php" class="btn-danger-custom" onclick="return confirm('Are you sure you want to logout?')">
                             <i class="fas fa-sign-out-alt me-2"></i>Logout
                         </a>
                     </div>
@@ -557,13 +655,6 @@ ob_clean();
                 });
             });
 
-            // Add loading states to buttons
-            $('.btn').on('click', function(e) {
-                if ($(this).attr('href') === '#') {
-                    e.preventDefault();
-                }
-            });
-
             // Smooth scrolling for internal links
             $('a[href^="#"]').on('click', function(event) {
                 const target = $(this.getAttribute('href'));
@@ -575,17 +666,18 @@ ob_clean();
                 }
             });
 
-            // Add hover effects to cards
-            $('.stats-card, .info-item').on('mouseenter', function() {
-                $(this).addClass('animate__pulse');
-            }).on('mouseleave', function() {
-                $(this).removeClass('animate__pulse');
+            // Add subtle animation to management cards on load
+            $('.management-card').each(function(index) {
+                $(this).css('animation-delay', (index * 0.1) + 's');
+                $(this).addClass('animate__animated animate__fadeInUp');
             });
         });
 
         // Handle navigation collapse on mobile
         $(document).on('click', '.navbar-nav .nav-link', function() {
-            $('.navbar-collapse').collapse('hide');
+            if (window.innerWidth < 992) {
+                $('.navbar-collapse').collapse('hide');
+            }
         });
     </script>
 </body>

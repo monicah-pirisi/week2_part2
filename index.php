@@ -30,12 +30,6 @@ if (file_exists($core_file)) {
     }
 }
 
-// Check if user is logged in and redirect if needed
-if (function_exists('isLoggedIn') && isLoggedIn()) {
-    header('Location: dashboard.php');
-    exit();
-}
-
 // Clean any output buffer content
 ob_clean();
 ?>
@@ -123,6 +117,11 @@ ob_clean();
             color: white !important;
             background: rgba(255,255,255,0.1);
             transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white !important;
         }
 
         .navbar-toggler {
@@ -446,7 +445,7 @@ ob_clean();
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#home">
+                        <a class="nav-link active" href="#home">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
@@ -455,8 +454,9 @@ ob_clean();
                             <i class="fas fa-star me-1"></i>Features
                         </a>
                     </li>
+                    
                     <?php if (!function_exists('isLoggedIn') || !isLoggedIn()): ?>
-                        <!-- Show Register and Login for non-logged in users -->
+                        <!-- NOT LOGGED IN: Show Register | Login -->
                         <li class="nav-item">
                             <a class="nav-link" href="login/register.php">
                                 <i class="fas fa-user-plus me-1"></i>Register
@@ -468,25 +468,37 @@ ob_clean();
                             </a>
                         </li>
                     <?php else: ?>
-                        <!-- Show user-specific menu for logged in users -->
+                        <!-- LOGGED IN -->
                         <?php if (function_exists('isAdmin') && isAdmin()): ?>
-                            <!-- Admin menu -->
+                            <!-- ADMIN: Show Category | Brand | Logout -->
                             <li class="nav-item">
                                 <a class="nav-link" href="admin/category.php">
-                                    <i class="fas fa-cogs me-1"></i>Categories
+                                    <i class="fas fa-list me-1"></i>Category
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="admin/brand.php">
+                                    <i class="fas fa-tags me-1"></i>Brand
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="admin/product.php">
+                                    <i class="fas fa-box me-1"></i>Product
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="login/logout.php">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                </a>
+                            </li>
+                        <?php else: ?>
+                            <!-- NON-ADMIN: Show Logout only -->
+                            <li class="nav-item">
+                                <a class="nav-link" href="login/logout.php">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Logout
                                 </a>
                             </li>
                         <?php endif; ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="dashboard.php">
-                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="login/logout.php">
-                                <i class="fas fa-sign-out-alt me-1"></i>Logout
-                            </a>
-                        </li>
                     <?php endif; ?>
                 </ul>
             </div>
@@ -520,12 +532,18 @@ ob_clean();
                                     <i class="fas fa-sign-in-alt me-2"></i>Sign In
                                 </a>
                             <?php else: ?>
-                                <a href="dashboard.php" class="btn btn-custom animate__animated animate__pulse animate__infinite">
-                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                                </a>
                                 <?php if (function_exists('isAdmin') && isAdmin()): ?>
-                                    <a href="admin/category.php" class="btn btn-outline-custom">
-                                        <i class="fas fa-cogs me-2"></i>Manage Categories
+                                    <!-- Admin Quick Actions -->
+                                    <a href="admin/brand.php" class="btn btn-custom animate__animated animate__pulse animate__infinite">
+                                        <i class="fas fa-tags me-2"></i>Manage Brands
+                                    </a>
+                                    <a href="admin/product.php" class="btn btn-outline-custom">
+                                        <i class="fas fa-box me-2"></i>Manage Products
+                                    </a>
+                                <?php else: ?>
+                                    <!-- Regular User Actions -->
+                                    <a href="dashboard.php" class="btn btn-custom animate__animated animate__pulse animate__infinite">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
                                     </a>
                                 <?php endif; ?>
                             <?php endif; ?>
@@ -647,6 +665,22 @@ ob_clean();
                 if (window.innerWidth < 992) {
                     $('.navbar-collapse').collapse('hide');
                 }
+            });
+
+            // Active link highlighting on scroll
+            $(window).on('scroll', function() {
+                const scrollPos = $(window).scrollTop() + 100;
+                
+                $('section').each(function() {
+                    const sectionTop = $(this).offset().top;
+                    const sectionBottom = sectionTop + $(this).outerHeight();
+                    const sectionId = $(this).attr('id');
+                    
+                    if (scrollPos >= sectionTop && scrollPos < sectionBottom) {
+                        $('.nav-link').removeClass('active');
+                        $('.nav-link[href="#' + sectionId + '"]').addClass('active');
+                    }
+                });
             });
         });
 
