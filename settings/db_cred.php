@@ -22,6 +22,6 @@ if (!defined("PASSWD")) {
 
 if (!defined("DATABASE")) {
     // Use the database name from the provided SQL dump
-    define("DATABASE", "shoppn");
+    define("DATABASE", "ecommerce_2025A_monicah_lekupe"); 
 }
 ?>
