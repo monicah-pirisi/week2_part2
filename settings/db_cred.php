@@ -13,11 +13,11 @@ if (!defined("SERVER")) {
 }
 
 if (!defined("USERNAME")) {
-    define("USERNAME", "root");
+    define("USERNAME", "monicah.lekupe");
 }
 
 if (!defined("PASSWD")) {
-    define("PASSWD", "");
+    define("PASSWD", "Amelia@2026");
 }
 
 if (!defined("DATABASE")) {
