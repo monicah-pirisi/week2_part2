@@ -1,0 +1,44 @@
+# Environment Configuration
+.env
+
+# Logs
+logs/*.log
+*.log
+
+# Uploaded Files
+uploads/*
+!uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary Files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Backup Files
+*.bak
+*.backup
+
+# Composer
+vendor/
+composer.lock
+
+# Node Modules
+node_modules/
+package-lock.json
+
+# Build Files
+dist/
+build/

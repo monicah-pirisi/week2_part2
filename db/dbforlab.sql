@@ -18,8 +18,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `shoppn`
+-- Database: `ecommerce_2025A_monicah_lekupe`
 --
+CREATE DATABASE IF NOT EXISTS `ecommerce_2025A_monicah_lekupe` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `ecommerce_2025A_monicah_lekupe`;
 
 -- --------------------------------------------------------
 
@@ -51,28 +53,30 @@ CREATE TABLE `cart` (
 -- Table structure for table `categories`
 --
 
--- Create the categories table
 CREATE TABLE `categories` (
-  `cat_id` int(11) NOT NULL AUTO_INCREMENT,
+  `cat_id` int(11) NOT NULL,
   `cat_name` varchar(100) NOT NULL,
-  `cat_type` varchar(50) NOT NULL,
-  PRIMARY KEY (`cat_id`)
+  `cat_type` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Insert into categories
-INSERT INTO `categories` (`cat_name`, `cat_type`) VALUES
-('West African', 'cuisine'),
-('East African', 'cuisine'),
-('North African', 'cuisine'),
-('Southern African', 'cuisine'),
-('Central African', 'cuisine'),
-('Fine Dining', 'restaurant_type'),
-('Casual Dining', 'restaurant_type'),
-('Street Food/Quick Bite', 'restaurant_type'),
-('Catering/Takeaway', 'restaurant_type'),
-('Vegetarian-Friendly', 'dietary'),
-('Halal Options', 'dietary'),
-('Vegan Options', 'dietary');
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`cat_id`, `cat_name`, `cat_type`) VALUES
+(1, 'West African', 'cuisine'),
+(2, 'East African', 'cuisine'),
+(3, 'North African', 'cuisine'),
+(4, 'Southern African', 'cuisine'),
+(5, 'Central African', 'cuisine'),
+(6, 'Fine Dining', 'restaurant_type'),
+(7, 'Casual Dining', 'restaurant_type'),
+(8, 'Street Food/Quick Bite', 'restaurant_type'),
+(9, 'Catering/Takeaway', 'restaurant_type'),
+(10, 'Vegetarian-Friendly', 'dietary'),
+(11, 'Halal Options', 'dietary'),
+(12, 'Vegan Options', 'dietary');
+
 -- --------------------------------------------------------
 
 --
@@ -223,7 +227,7 @@ ALTER TABLE `brands`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `cat_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `cat_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `customer`

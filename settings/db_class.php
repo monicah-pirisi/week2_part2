@@ -4,22 +4,8 @@
  * Handles all database operations and connections
  */
 
-// Database Configuration
-if (!defined("SERVER")) {
-    define("SERVER", "localhost");
-}
-
-if (!defined("USERNAME")) {
-    define("USERNAME", "monicah.lekupe");
-}
-
-if (!defined("PASSWD")) {
-    define("PASSWD", "Amelia@2026");
-}
-
-if (!defined("DATABASE")) {
-    define("DATABASE", "ecommerce_2025A_monicah_lekupe");
-}
+// Load configuration from .env file
+require_once __DIR__ . '/config.php';
 
 class db_connection
 {

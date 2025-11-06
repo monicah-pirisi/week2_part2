@@ -2,13 +2,13 @@ $(document).ready(function() {
     $('#register-form').submit(function(e) {
         e.preventDefault();
 
-        name = $('#name').val();
-        email = $('#email').val();
-        password = $('#password').val();
-        phone_number = $('#phone_number').val();
-        country = $('#country').val();
-        city = $('#city').val();
-        role = $('input[name="role"]:checked').val() || '0'; // Default to customer if none selected
+        var name = $('#name').val();
+        var email = $('#email').val();
+        var password = $('#password').val();
+        var phone_number = $('#phone_number').val();
+        var country = $('#country').val();
+        var city = $('#city').val();
+        var role = $('input[name="role"]:checked').val() || '0'; // Default to customer if none selected
 
         if (name == '' || email == '' || password == '' || phone_number == '' || country == '' || city == '') {
             Swal.fire({

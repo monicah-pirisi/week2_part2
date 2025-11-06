@@ -3,7 +3,7 @@ require_once(__DIR__ . '/../settings/core.php');
 
 // Check if user is logged in and is admin
 if (!isAdmin()) {
-    header("Location: ../login.php");
+    header("Location: ../login/login.php");
     exit();
 }
 ?>

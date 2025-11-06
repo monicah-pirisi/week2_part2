@@ -16,11 +16,48 @@ require_once(__DIR__ . '/db_class.php');
 date_default_timezone_set('UTC');
 
 /**
+ * Check session timeout
+ * @return void
+ */
+function checkSessionTimeout()
+{
+    // Only check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        return;
+    }
+
+    // Check if login_time is set
+    if (!isset($_SESSION['login_time'])) {
+        $_SESSION['login_time'] = time();
+        return;
+    }
+
+    // Get session timeout from config (default 3600 seconds = 1 hour)
+    $timeout = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 3600;
+
+    // Check if session has expired
+    if (time() - $_SESSION['login_time'] > $timeout) {
+        // Session expired, logout user
+        logout();
+        // Redirect to login with timeout message
+        $_SESSION['timeout_message'] = 'Your session has expired. Please log in again.';
+        header('Location: ' . (__DIR__ . '/../login/login.php'));
+        exit();
+    }
+
+    // Update last activity time
+    $_SESSION['login_time'] = time();
+}
+
+/**
  * Check if user is logged in
  * @return bool - True if logged in, False otherwise
  */
 function isLoggedIn()
 {
+    // Check session timeout
+    checkSessionTimeout();
+
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
 
