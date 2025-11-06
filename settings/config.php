@@ -59,7 +59,12 @@ function env($key, $default = null) {
         $env_loaded = true;
     }
 
-    return isset($env_vars[$key]) ? $env_vars[$key] : $default;
+    // Return default if key is not set OR if value is empty
+    if (!isset($env_vars[$key]) || $env_vars[$key] === '') {
+        return $default;
+    }
+
+    return $env_vars[$key];
 }
 
 // ============================================================================
@@ -67,8 +72,19 @@ function env($key, $default = null) {
 // ============================================================================
 
 // Parse database host and port
-$db_host = env('DB_HOST', 'localhost');
+$db_host = env('DB_HOST', null);
 $db_port = 3306; // Default MySQL port
+
+// Check if DB_HOST is not configured
+if ($db_host === null || $db_host === '') {
+    // Throw an error if in development mode
+    if (env('APP_ENV', 'development') === 'development') {
+        die("ERROR: DB_HOST is not configured in .env file. Please set DB_HOST to your database server (e.g., 169.239.251.102:3306 or localhost)");
+    } else {
+        error_log("CRITICAL: DB_HOST is not configured in .env file");
+        die("Database configuration error. Please contact the administrator.");
+    }
+}
 
 // Check if host includes port (format: host:port)
 if (strpos($db_host, ':') !== false) {
@@ -79,9 +95,19 @@ if (strpos($db_host, ':') !== false) {
 // Define database constants
 define("SERVER", $db_host);
 define("DB_PORT", $db_port);
-define("USERNAME", env('DB_USERNAME', 'root'));
-define("PASSWD", env('DB_PASSWORD', ''));
-define("DATABASE", env('DB_NAME', 'ecommerce_db'));
+define("USERNAME", env('DB_USERNAME', null));
+define("PASSWD", env('DB_PASSWORD', null));
+define("DATABASE", env('DB_NAME', null));
+
+// Validate required database credentials
+if (USERNAME === null || DATABASE === null) {
+    if (env('APP_ENV', 'development') === 'development') {
+        die("ERROR: Database credentials (DB_USERNAME, DB_NAME) must be configured in .env file");
+    } else {
+        error_log("CRITICAL: Missing database credentials in .env file");
+        die("Database configuration error. Please contact the administrator.");
+    }
+}
 
 // ============================================================================
 // APPLICATION CONFIGURATION
