@@ -1,10 +1,16 @@
 <?php
-// Set response header to JSON
-header('Content-Type: application/json');
+/**
+ * Login Customer Action - FIXED VERSION
+ * Handles customer login with improved error handling
+ */
 
-// Enable error reporting for debugging
+// Enable error logging
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../logs/login_errors.log');
+
+// Set response header to JSON first (before any output)
+header('Content-Type: application/json');
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -14,7 +20,8 @@ if (session_status() === PHP_SESSION_NONE) {
 // Initialize response array
 $response = array(
     'status' => 'error',
-    'message' => 'An error occurred'
+    'message' => 'An error occurred during login',
+    'debug' => array() // Add debug info in development
 );
 
 try {
@@ -29,17 +36,39 @@ try {
 
     // Check if request method is POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        $response['message'] = 'Invalid request method';
+        $response['message'] = 'Invalid request method. Please use POST.';
+        $response['debug']['method'] = $_SERVER['REQUEST_METHOD'];
+        echo json_encode($response);
+        exit();
+    }
+
+    // Check if required files exist
+    $controller_file = __DIR__ . '/../controllers/customer_controller.php';
+    if (!file_exists($controller_file)) {
+        $response['message'] = 'System error: Controller file not found';
+        $response['debug']['missing_file'] = $controller_file;
+        error_log("Login error: Controller file not found at " . $controller_file);
         echo json_encode($response);
         exit();
     }
 
     // Include controller
-    require_once __DIR__ . '/../controllers/customer_controller.php';
+    require_once $controller_file;
+
+    // Check if the login function exists
+    if (!function_exists('login_customer_ctr')) {
+        $response['message'] = 'System error: Login function not available';
+        error_log("Login error: login_customer_ctr function does not exist");
+        echo json_encode($response);
+        exit();
+    }
 
     // Get and sanitize POST data
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
+
+    $response['debug']['email_received'] = !empty($email);
+    $response['debug']['password_received'] = !empty($password);
 
     // Validate input - Check if fields are empty
     if (empty($email) || empty($password)) {
@@ -62,8 +91,15 @@ try {
         exit();
     }
 
+    // Log login attempt
+    error_log("Login attempt for email: " . $email);
+
     // Attempt to login the customer
     $login_result = login_customer_ctr($email, $password);
+
+    // Debug: Log the login result
+    error_log("Login result: " . json_encode($login_result));
+    $response['debug']['login_result_type'] = gettype($login_result);
 
     // Check if login was successful
     if ($login_result && isset($login_result['status']) && $login_result['status'] === 'success') {
@@ -81,6 +117,9 @@ try {
         $_SESSION['logged_in'] = true;
         $_SESSION['login_time'] = time();
         
+        // Log successful login
+        error_log("Login successful for user ID: " . $_SESSION['user_id']);
+        
         // Prepare success response
         $response['status'] = 'success';
         $response['message'] = 'Login successful! Redirecting...';
@@ -92,19 +131,32 @@ try {
             'role' => $_SESSION['user_role']
         );
         
+        // Remove debug info for successful logins
+        unset($response['debug']);
+        
     } else {
         // Login failed
         $response['status'] = 'error';
         $response['message'] = isset($login_result['message']) ? $login_result['message'] : 'Invalid email or password';
+        
+        // Log failed login
+        error_log("Login failed for email: " . $email . " - " . $response['message']);
     }
 
 } catch (Exception $e) {
-    // Log error for debugging (in production, log to file instead)
-    error_log('Login error: ' . $e->getMessage());
+    // Log error for debugging
+    error_log('Login exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
     
     $response['status'] = 'error';
-    $response['message'] = 'An error occurred: ' . $e->getMessage();
+    $response['message'] = 'An unexpected error occurred. Please try again later.';
+    $response['debug']['exception'] = $e->getMessage();
+    $response['debug']['file'] = $e->getFile();
+    $response['debug']['line'] = $e->getLine();
 }
+
+// Remove debug info in production
+// Uncomment the line below when deploying to production
+// unset($response['debug']);
 
 // Send JSON response
 echo json_encode($response);

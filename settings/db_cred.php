@@ -1,5 +1,5 @@
 <?php
-/*
+
     // Database credentials
     // Settings/db_cred.php
 
@@ -24,24 +24,23 @@
         // Use the database name from the provided SQL dump
         define("DATABASE", "ecommerce_2025A_monicah_lekupe"); 
     }
-*/
 ?>
 
 <?php
-//Database credentials
+/*//Database credentials
 
 // Auto-detect environment
 if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['HTTP_HOST'] == '127.0.0.1') {
     // LOCALHOST settings
     if (!defined("SERVER")) define("SERVER", "localhost");
-    if (!defined("USERNAME")) define("USERNAME", "root");
-    if (!defined("PASSWD")) define("PASSWD", "");
-    if (!defined("DATABASE")) define("DATABASE", "shoppn");
+    if (!defined("USERNAME")) define("USERNAME", "monicah.lekupe");
+    if (!defined("PASSWD")) define("PASSWD", "Amelia@2026");
+    if (!defined("DATABASE")) define("DATABASE", "ecommerce_2025A_monicah_lekupe");
 } else {
     // PRODUCTION server settings
     if (!defined("SERVER")) define("SERVER", "localhost");
     if (!defined("USERNAME")) define("USERNAME", "monicah.lekupe");
     if (!defined("PASSWD")) define("PASSWD", "Amelia@2026");
     if (!defined("DATABASE")) define("DATABASE", "ecommerce_2025A_monicah_lekupe");
-}
+}*/
 ?>

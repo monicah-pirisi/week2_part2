@@ -1,11 +1,16 @@
 <?php
+/**
+ * Register User Action - FIXED VERSION
+ * Handles user registration with improved error handling
+ */
+
+// Enable error logging
+error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/../logs/register_errors.log');
+
 // Set response header to JSON first (before any output)
 header('Content-Type: application/json');
-
-// Disable error display in production (errors should be logged, not displayed)
-// Comment these out during development if you need to see errors
-error_reporting(0);
-ini_set('display_errors', 0);
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -15,21 +20,41 @@ if (session_status() === PHP_SESSION_NONE) {
 // Initialize response array
 $response = array(
     'status' => 'error',
-    'message' => 'An error occurred during registration'
+    'message' => 'An error occurred during registration',
+    'debug' => array() // Add debug info in development
 );
 
 try {
     // Check if request method is POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        $response['message'] = 'Invalid request method';
+        $response['message'] = 'Invalid request method. Please use POST.';
+        $response['debug']['method'] = $_SERVER['REQUEST_METHOD'];
+        echo json_encode($response);
+        exit();
+    }
+
+    // Check if required files exist
+    $controller_file = __DIR__ . '/../controllers/customer_controller.php';
+    if (!file_exists($controller_file)) {
+        $response['message'] = 'System error: Controller file not found';
+        $response['debug']['missing_file'] = $controller_file;
+        error_log("Registration error: Controller file not found at " . $controller_file);
         echo json_encode($response);
         exit();
     }
 
     // Include controller
-    require_once __DIR__ . '/../controllers/customer_controller.php';
+    require_once $controller_file;
 
-    // Sanitize and validate name
+    // Check if the register function exists
+    if (!function_exists('register_customer_ctr')) {
+        $response['message'] = 'System error: Registration function not available';
+        error_log("Registration error: register_customer_ctr function does not exist");
+        echo json_encode($response);
+        exit();
+    }
+
+    // Get and validate name
     if (!isset($_POST['name']) || empty(trim($_POST['name']))) {
         $response['message'] = 'Name is required';
         echo json_encode($response);
@@ -49,7 +74,7 @@ try {
         exit();
     }
 
-    // Sanitize and validate email
+    // Get and validate email
     if (!isset($_POST['email']) || empty(trim($_POST['email']))) {
         $response['message'] = 'Email is required';
         echo json_encode($response);
@@ -141,7 +166,6 @@ try {
     $role = (int)$_POST['role'];
     
     // Validate role is either 0 (customer), 1 (admin), or 2 (restaurant owner)
-    // For security, you might want to restrict admin registration
     if (!in_array($role, [0, 1, 2])) {
         $response['message'] = 'Invalid role selected';
         echo json_encode($response);
@@ -156,18 +180,27 @@ try {
         exit();
     }
 
-    // Check if email already exists
+    // Check if email already exists (if function is available)
     if (function_exists('get_customer_by_email_ctr')) {
         $existing_customer = get_customer_by_email_ctr($email);
         if ($existing_customer) {
             $response['message'] = 'Email already exists. Please use a different email or try logging in.';
+            error_log("Registration failed: Email already exists - " . $email);
             echo json_encode($response);
             exit();
         }
     }
 
+    // Log registration attempt
+    error_log("Registration attempt for email: " . $email);
+
     // Attempt to register customer
     $user_id = register_customer_ctr($name, $email, $password, $phone_number, $country, $city, $role);
+
+    // Debug: Log the registration result
+    error_log("Registration result: " . var_export($user_id, true));
+    $response['debug']['user_id'] = $user_id;
+    $response['debug']['user_id_type'] = gettype($user_id);
 
     // Check if registration was successful
     if ($user_id && is_numeric($user_id) && $user_id > 0) {
@@ -175,6 +208,12 @@ try {
         $response['status'] = 'success';
         $response['message'] = 'Registration successful! You can now log in.';
         $response['user_id'] = (int)$user_id;
+        
+        // Log successful registration
+        error_log("Registration successful for user ID: " . $user_id);
+        
+        // Remove debug info for successful registrations
+        unset($response['debug']);
         
         // Optional: Auto-login after registration
         // Uncomment the lines below if you want users to be logged in automatically
@@ -197,18 +236,25 @@ try {
         $response['status'] = 'error';
         $response['message'] = 'Failed to register. Please try again later.';
         
-        // Log the error for debugging (don't expose to user)
-        error_log('Registration failed for email: ' . $email . ' - User ID: ' . var_export($user_id, true));
+        // Log the error for debugging
+        error_log('Registration failed for email: ' . $email . ' - User ID returned: ' . var_export($user_id, true));
     }
 
 } catch (Exception $e) {
     // Catch any unexpected errors
     $response['status'] = 'error';
     $response['message'] = 'An unexpected error occurred. Please try again later.';
+    $response['debug']['exception'] = $e->getMessage();
+    $response['debug']['file'] = $e->getFile();
+    $response['debug']['line'] = $e->getLine();
     
-    // Log the error for debugging (don't expose detailed error to user)
+    // Log the error for debugging
     error_log('Registration exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine());
 }
+
+// Remove debug info in production
+// Uncomment the line below when deploying to production
+// unset($response['debug']);
 
 // Send JSON response
 echo json_encode($response);
