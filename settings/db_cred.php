@@ -5,26 +5,6 @@
  * Please use settings/config.php which loads from .env file
  */
 
-
-<?php
-//Database credentials
-if(!defined("SERVER")) {
-    define("SERVER", "localhost");
-}
-
-if(!defined("USERNAME")) {
-    define("USERNAME", "monicah.lekupe");
-}
-
-if(!defined("PASSWORD")) {
-    define("PASSWORD", "Amelia@2026");
-}
-
-if(!defined("DATABASE")) {
-    define("DATABASE", "ecommerce_2025A_monicah_lekupe");
-}
-
-
 // Load configuration from .env file
 require_once __DIR__ . '/config.php';
 
