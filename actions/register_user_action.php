@@ -1,25 +1,24 @@
 <?php
 /**
- * Register User Action - Final Fixed Version
+ * Register User Action - Clean JSON Response Version
  */
 
 declare(strict_types=1);
 
-// ✅ Remove any accidental BOM/whitespace before this line!
+// Disable all HTML error output to ensure clean JSON responses
+error_reporting(0);
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+ini_set('log_errors', '1');
 
-// Enable strict error reporting
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
+// Start output buffering to catch any accidental output
+ob_start();
 
-// ✅ Load main config first — defines LOG_PATH, DB vars, etc.
+// Load database credentials
 require_once __DIR__ . '/../settings/db_cred.php';
 
-// ✅ Use consistent error log path
-$logPath = defined('LOG_PATH') ? LOG_PATH . 'register_errors.log' : __DIR__ . '/../logs/register_errors.log';
-ini_set('error_log', $logPath);
-
-// ✅ JSON header before any output
-header('Content-Type: application/json');
+// Set JSON header immediately
+header('Content-Type: application/json; charset=utf-8');
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -101,8 +100,6 @@ try {
     $response['message'] = 'Registration successful! You can now log in.';
     $response['user_id'] = (int)$user_id;
 
-    error_log("✅ Registration successful for {$email} (User ID: {$user_id})");
-
 } catch (Throwable $e) {
     // --- Catch all errors (Exception + Fatal)
     $response['status'] = 'error';
@@ -116,7 +113,8 @@ try {
         ];
     }
 
-    error_log("❌ Registration error: {$e->getMessage()} in {$e->getFile()} on line {$e->getLine()}");
+    // Log errors silently without displaying
+    @error_log("Registration error: {$e->getMessage()}");
 }
 
 // --- Hide debug info in production
@@ -124,6 +122,15 @@ if (defined('APP_ENV') && APP_ENV !== 'development') {
     unset($response['debug']);
 }
 
-// --- Return JSON
-echo json_encode($response);
+// Clear any buffered output (errors, warnings, etc.)
+ob_end_clean();
+
+// Start fresh output buffer for JSON only
+ob_start();
+
+// Return clean JSON
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
+
+// Send the clean output
+ob_end_flush();
 exit();
