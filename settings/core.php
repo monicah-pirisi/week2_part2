@@ -1,18 +1,18 @@
 <?php
 /**
  * Core Settings and Functions
- * Contains essential functions for authentication and session management
+ * Handles sessions, authentication, sanitization, and common utilities
  */
 
-// Start session if not already started
+// ✅ Start session safely
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Include database class
-require_once(__DIR__ . '/db_class.php');
+// ✅ Include database class (ensure path is correct)
+require_once __DIR__ . '/db_class.php';
 
-// Set default timezone
+// ✅ Set default timezone
 date_default_timezone_set('UTC');
 
 /**
@@ -22,148 +22,91 @@ date_default_timezone_set('UTC');
 function checkSessionTimeout()
 {
     // Only check if user is logged in
-    if (!isset($_SESSION['user_id'])) {
+    if (empty($_SESSION['user_id'])) {
         return;
     }
 
-    // Check if login_time is set
+    // Initialize login_time if not set
     if (!isset($_SESSION['login_time'])) {
         $_SESSION['login_time'] = time();
         return;
     }
 
-    // Get session timeout from config (default 3600 seconds = 1 hour)
-    $timeout = defined('SESSION_TIMEOUT') ? SESSION_TIMEOUT : 3600;
+    // Get timeout (default: 1 hour)
+    $timeout = defined('SESSION_TIMEOUT') ? (int)SESSION_TIMEOUT : 3600;
 
-    // Check if session has expired
-    if (time() - $_SESSION['login_time'] > $timeout) {
-        // Session expired, logout user
+    // If expired → logout and redirect
+    if ((time() - $_SESSION['login_time']) > $timeout) {
         logout();
-        // Redirect to login with timeout message
+
+        // Store message and redirect user
         $_SESSION['timeout_message'] = 'Your session has expired. Please log in again.';
-        header('Location: ' . (__DIR__ . '/../login/login.php'));
+        header('Location: ../login/login.php'); // ✅ fixed path for correct redirection
         exit();
     }
 
-    // Update last activity time
+    // Update last active time
     $_SESSION['login_time'] = time();
 }
 
 /**
  * Check if user is logged in
- * @return bool - True if logged in, False otherwise
  */
 function isLoggedIn()
 {
-    // Check session timeout
     checkSessionTimeout();
-
-    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+    return !empty($_SESSION['user_id']);
 }
 
 /**
  * Check if user is admin
- * @return bool - True if admin, False otherwise
  */
 function isAdmin()
 {
-    // Check if user is logged in first
-    if (!isLoggedIn()) {
-        return false;
-    }
-    
-    // Check if user_role is set and equals 1 (admin)
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] == 1;
+    return isLoggedIn() && ($_SESSION['user_role'] ?? null) == 1;
 }
 
 /**
- * Check if user is a customer
- * @return bool - True if customer, False otherwise
+ * Check if user is customer
  */
 function isCustomer()
 {
-    // Check if user is logged in first
-    if (!isLoggedIn()) {
-        return false;
-    }
-    
-    // Check if user_role is set and equals 0 (customer)
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] == 0;
+    return isLoggedIn() && ($_SESSION['user_role'] ?? null) == 0;
 }
 
 /**
- * Check if user is a restaurant owner
- * @return bool - True if restaurant owner, False otherwise
+ * Check if user is restaurant owner
  */
 function isRestaurantOwner()
 {
-    // Check if user is logged in first
-    if (!isLoggedIn()) {
-        return false;
-    }
-    
-    // Check if user_role is set and equals 2 (restaurant owner)
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] == 2;
+    return isLoggedIn() && ($_SESSION['user_role'] ?? null) == 2;
 }
 
 /**
- * Get current user ID
- * @return int|null - User ID or null if not logged in
+ * Get current user details
  */
-function getCurrentUserId()
-{
-    return isLoggedIn() ? $_SESSION['user_id'] : null;
-}
-
-/**
- * Get current user name
- * @return string|null - User name or null if not logged in
- */
-function getCurrentUserName()
-{
-    return isLoggedIn() ? ($_SESSION['user_name'] ?? null) : null;
-}
-
-/**
- * Get current user email
- * @return string|null - User email or null if not logged in
- */
-function getCurrentUserEmail()
-{
-    return isLoggedIn() ? ($_SESSION['user_email'] ?? null) : null;
-}
-
-/**
- * Get current user role
- * @return int|null - User role (0=customer, 1=admin, 2=restaurant owner) or null if not logged in
- */
-function getCurrentUserRole()
-{
-    return isLoggedIn() ? ($_SESSION['user_role'] ?? null) : null;
-}
+function getCurrentUserId()     { return $_SESSION['user_id']     ?? null; }
+function getCurrentUserName()   { return $_SESSION['user_name']   ?? null; }
+function getCurrentUserEmail()  { return $_SESSION['user_email']  ?? null; }
+function getCurrentUserRole()   { return $_SESSION['user_role']   ?? null; }
 
 /**
  * Logout user
- * @return void
  */
 function logout()
 {
-    // Unset all session variables
-    $_SESSION = array();
-    
-    // Destroy the session cookie
-    if (isset($_COOKIE[session_name()])) {
-        setcookie(session_name(), '', time() - 3600, '/');
+    $_SESSION = [];
+
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
     }
-    
-    // Destroy the session
+
     session_destroy();
 }
 
 /**
- * Redirect to a specific page
- * @param string $url - URL to redirect to
- * @return void
+ * Redirect helper
  */
 function redirect($url)
 {
@@ -172,22 +115,15 @@ function redirect($url)
 }
 
 /**
- * Sanitize input data
- * @param string $data - Data to sanitize
- * @return string - Sanitized data
+ * Sanitize input
  */
 function sanitize($data)
 {
-    $data = trim($data);
-    $data = stripslashes($data);
-    $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
-    return $data;
+    return htmlspecialchars(stripslashes(trim($data)), ENT_QUOTES, 'UTF-8');
 }
 
 /**
- * Validate email address
- * @param string $email - Email to validate
- * @return bool - True if valid, False otherwise
+ * Validate email format
  */
 function isValidEmail($email)
 {
@@ -195,22 +131,16 @@ function isValidEmail($email)
 }
 
 /**
- * Generate CSRF token
- * @return string - CSRF token
+ * CSRF Protection
  */
 function generateCSRFToken()
 {
-    if (!isset($_SESSION['csrf_token'])) {
+    if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $_SESSION['csrf_token'];
 }
 
-/**
- * Verify CSRF token
- * @param string $token - Token to verify
- * @return bool - True if valid, False otherwise
- */
 function verifyCSRFToken($token)
 {
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
@@ -218,59 +148,50 @@ function verifyCSRFToken($token)
 
 /**
  * Check if request is AJAX
- * @return bool - True if AJAX, False otherwise
  */
 function isAjaxRequest()
 {
-    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }
 
 /**
  * Get client IP address
- * @return string - Client IP address
  */
 function getClientIP()
 {
-    $ip = '';
-    
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    }
-    
-    return $ip;
+    return $_SERVER['HTTP_CLIENT_IP'] ??
+           $_SERVER['HTTP_X_FORWARDED_FOR'] ??
+           $_SERVER['REMOTE_ADDR'] ??
+           '0.0.0.0';
 }
 
 /**
- * Log error message
- * @param string $message - Error message
- * @param string $file - File where error occurred
- * @param int $line - Line number where error occurred
- * @return void
+ * Log custom errors
  */
 function logError($message, $file = '', $line = 0)
 {
-    $log_message = date('Y-m-d H:i:s') . " - Error: " . $message;
-    
-    if (!empty($file)) {
-        $log_message .= " in " . $file;
-    }
-    
-    if ($line > 0) {
-        $log_message .= " on line " . $line;
-    }
-    
+    $log_message = sprintf(
+        "[%s] ERROR: %s%s%s\n",
+        date('Y-m-d H:i:s'),
+        $message,
+        $file ? " in $file" : '',
+        $line ? " on line $line" : ''
+    );
     error_log($log_message);
 }
 
-// Error handling for production
-// Uncomment these in production environment
+// Recommended: Centralized error logging (keeps consistency with config.php)
+if (defined('LOG_PATH')) {
+    ini_set('log_errors', 1);
+    ini_set('error_log', LOG_PATH . 'error.log');
+} else {
+    ini_set('log_errors', 1);
+    ini_set('error_log', __DIR__ . '/../logs/error.log');
+}
+
+//  Disable display_errors in production (uncomment before deployment)
 // ini_set('display_errors', 0);
 // error_reporting(E_ALL);
-// ini_set('log_errors', 1);
-// ini_set('error_log', __DIR__ . '/../logs/error.log');
+
 ?>

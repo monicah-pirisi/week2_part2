@@ -4,10 +4,20 @@
  * Handles user registration with improved error handling
  */
 
-// Enable error logging
+/// Enable error logging
 error_reporting(E_ALL);
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/../logs/register_errors.log');
+
+// Use the LOG_PATH constant from your config (ensure it ends with '/')
+if (defined('LOG_PATH')) {
+    ini_set('error_log', LOG_PATH . 'register_errors.log');
+} else {
+    // Fallback in case LOG_PATH is not defined
+    ini_set('error_log', __DIR__ . '/../logs/register_errors.log');
+}
+
+require_once __DIR__ . '/../config/config.php';
+
 
 // Set response header to JSON first (before any output)
 header('Content-Type: application/json');
