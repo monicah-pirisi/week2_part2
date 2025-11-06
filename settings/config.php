@@ -70,8 +70,21 @@ try {
 }
 
 // Define database constants from environment variables
+// Parse host and port if provided in host:port format
+$db_host = env('DB_HOST', 'localhost');
+$db_port = 3306; // Default MySQL port
+
+// Check if host contains port (e.g., "169.239.251.102:3306")
+if (strpos($db_host, ':') !== false) {
+    list($db_host, $db_port) = explode(':', $db_host, 2);
+}
+
 if (!defined("SERVER")) {
-    define("SERVER", env('DB_HOST', 'localhost'));
+    define("SERVER", $db_host);
+}
+
+if (!defined("DB_PORT")) {
+    define("DB_PORT", $db_port);
 }
 
 if (!defined("USERNAME")) {

@@ -19,8 +19,9 @@ class db_connection
     function db_connect()
     {
         try {
-            // Create connection
-            $this->db = new mysqli(SERVER, USERNAME, PASSWD, DATABASE);
+            // Create connection with port support
+            $port = defined('DB_PORT') ? DB_PORT : 3306;
+            $this->db = new mysqli(SERVER, USERNAME, PASSWD, DATABASE, $port);
 
             // Check connection
             if ($this->db->connect_error) {
