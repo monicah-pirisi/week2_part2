@@ -69,7 +69,7 @@ $(document).ready(function() {
 
         // AJAX request
         $.ajax({
-            url: '../actions/register_customer_action.php',
+            url: '../actions/register_user_action.php',
             type: 'POST',
             dataType: 'json',
             data: {
