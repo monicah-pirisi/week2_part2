@@ -12,7 +12,7 @@ error_reporting(E_ALL);
 ini_set('log_errors', 1);
 
 // ✅ Load main config first — defines LOG_PATH, DB vars, etc.
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../settings/db_cred.php';
 
 // ✅ Use consistent error log path
 $logPath = defined('LOG_PATH') ? LOG_PATH . 'register_errors.log' : __DIR__ . '/../logs/register_errors.log';
