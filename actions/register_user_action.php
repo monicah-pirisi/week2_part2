@@ -6,10 +6,6 @@
 declare(strict_types=1);
 
 // Disable all HTML error output to ensure clean JSON responses
-error_reporting(0);
-ini_set('display_errors', '0');
-ini_set('display_startup_errors', '0');
-ini_set('log_errors', '1');
 
 // Start output buffering to catch any accidental output
 ob_start();
@@ -114,7 +110,6 @@ try {
     }
 
     // Log errors silently without displaying
-    @error_log("Registration error: {$e->getMessage()}");
 }
 
 // --- Hide debug info in production

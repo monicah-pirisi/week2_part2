@@ -41,9 +41,7 @@ function env($key, $default = null) {
     return isset($env_vars[$key]) && $env_vars[$key] !== '' ? $env_vars[$key] : $default;
 }
 
-// ============================================================================
-// DATABASE CONFIGURATION
-// ============================================================================
+
 $db_host = env('DB_HOST', 'localhost');
 $db_port = 3306;
 
@@ -60,7 +58,6 @@ define('DATABASE', env('DB_NAME', 'ecommerce_2025A_monicah_lekupe'));
 
 // Simple validation
 if (!USERNAME || !DATABASE) {
-    error_log("Missing DB credentials in .env");
     if (env('APP_ENV', 'development') === 'development') {
         die("ERROR: Missing database credentials in .env");
     } else {
@@ -68,18 +65,16 @@ if (!USERNAME || !DATABASE) {
     }
 }
 
-// ============================================================================
+
 // APPLICATION CONFIGURATION
-// ============================================================================
+ 
 define('APP_ENV', env('APP_ENV', 'development'));
 define('APP_DEBUG', filter_var(env('APP_DEBUG', true), FILTER_VALIDATE_BOOLEAN));
 
 // Base path
 define('BASE_PATH', dirname(__DIR__));
 
-// ============================================================================
 // SESSION CONFIGURATION
-// ============================================================================
 define('SESSION_TIMEOUT', intval(env('SESSION_TIMEOUT', 3600)));
 define('SESSION_NAME', 'TASTE_OF_AFRICA_SESSION');
 
@@ -89,16 +84,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// ============================================================================
 // FILE UPLOAD CONFIGURATION
-// ============================================================================
+
 define('MAX_FILE_SIZE', intval(env('MAX_FILE_SIZE', 5242880))); // 5MB
 define('ALLOWED_EXTENSIONS', env('ALLOWED_EXTENSIONS', 'jpg,jpeg,png,gif'));
 define('UPLOAD_DIR', BASE_PATH . '/uploads/');
 
-// ============================================================================
 // LOGGING
-// ============================================================================
 define('LOG_LEVEL', env('LOG_LEVEL', 'debug'));
 define('LOG_PATH', BASE_PATH . '/' . env('LOG_PATH', 'logs/'));
 
@@ -109,12 +101,10 @@ if (!file_exists(LOG_PATH)) {
 function log_message($message, $level = 'info') {
     $log_file = LOG_PATH . 'app_' . date('Y-m-d') . '.log';
     $timestamp = date('Y-m-d H:i:s');
-    error_log("[$timestamp] [$level] $message\n", 3, $log_file);
 }
 
-// ============================================================================
 // ERROR REPORTING
-// ============================================================================
+
 if (APP_ENV === 'production') {
     error_reporting(0);
     ini_set('display_errors', 0);
@@ -126,7 +116,6 @@ if (APP_ENV === 'production') {
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
     $error_message = date('[Y-m-d H:i:s]') . " Error [$errno]: $errstr in $errfile:$errline\n";
     $log_file = LOG_PATH . 'error_' . date('Y-m-d') . '.log';
-    error_log($error_message, 3, $log_file);
 
     if (APP_DEBUG) {
         echo "<b>Error:</b> [$errno] $errstr in <b>$errfile</b> on line <b>$errline</b><br>";

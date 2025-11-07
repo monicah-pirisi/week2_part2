@@ -146,18 +146,14 @@ function verifyCSRFToken($token)
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
-/**
- * Check if request is AJAX
- */
+
 function isAjaxRequest()
 {
     return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }
 
-/**
- * Get client IP address
- */
+
 function getClientIP()
 {
     return $_SERVER['HTTP_CLIENT_IP'] ??
@@ -166,9 +162,7 @@ function getClientIP()
            '0.0.0.0';
 }
 
-/**
- * Log custom errors
- */
+
 function logError($message, $file = '', $line = 0)
 {
     $log_message = sprintf(
@@ -178,20 +172,9 @@ function logError($message, $file = '', $line = 0)
         $file ? " in $file" : '',
         $line ? " on line $line" : ''
     );
-    error_log($log_message);
 }
 
-// Recommended: Centralized error logging (keeps consistency with config.php)
-if (defined('LOG_PATH')) {
-    ini_set('log_errors', 1);
-    ini_set('error_log', LOG_PATH . 'error.log');
-} else {
-    ini_set('log_errors', 1);
-    ini_set('error_log', __DIR__ . '/../logs/error.log');
-}
 
-//  Disable display_errors in production (uncomment before deployment)
-// ini_set('display_errors', 0);
-// error_reporting(E_ALL);
+
 
 ?>

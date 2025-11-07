@@ -47,7 +47,6 @@ function login_customer_ctr($email, $password)
         $result = $customer->loginCustomer($email, $password);
         return $result;
     } catch (Exception $e) {
-        error_log("Login controller error: " . $e->getMessage());
         return array(
             'status' => 'error',
             'message' => 'An error occurred during login'

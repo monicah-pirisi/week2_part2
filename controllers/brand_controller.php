@@ -14,7 +14,6 @@ function get_all_brands_ctr() {
             'brands' => $result !== false ? $result : []
         ];
     } catch (Exception $e) {
-        error_log("Get all brands controller error: " . $e->getMessage());
         return [
             'success' => false,
             'message' => 'Failed to retrieve brands'
@@ -52,7 +51,6 @@ function get_brand_by_id_ctr($brand_id) {
             ];
         }
     } catch (Exception $e) {
-        error_log("Get brand by ID controller error: " . $e->getMessage());
         return [
             'success' => false,
             'message' => 'Failed to retrieve brand'
@@ -140,7 +138,6 @@ function add_brand_ctr($brand_name) {
             ];
         }
     } catch (Exception $e) {
-        error_log("Add brand controller error: " . $e->getMessage());
         return [
             'success' => false,
             'message' => 'An error occurred while adding the brand'
@@ -196,7 +193,6 @@ function update_brand_ctr($brand_id, $brand_name) {
             ];
         }
     } catch (Exception $e) {
-        error_log("Update brand controller error: " . $e->getMessage());
         return [
             'success' => false,
             'message' => 'An error occurred while updating the brand'
@@ -242,7 +238,6 @@ function delete_brand_ctr($brand_id) {
             ];
         }
     } catch (Exception $e) {
-        error_log("Delete brand controller error: " . $e->getMessage());
         return [
             'success' => false,
             'message' => 'An error occurred while deleting the brand'

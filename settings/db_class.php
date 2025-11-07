@@ -25,19 +25,16 @@ class db_connection
 
             // Check connection
             if ($this->db->connect_error) {
-                error_log("Database Connection Failed: " . $this->db->connect_error);
                 return false;
             }
 
             // Set charset to utf8mb4 for full Unicode support
             if (!$this->db->set_charset("utf8mb4")) {
-                error_log("Error setting charset: " . $this->db->error);
                 return false;
             }
 
             return true;
         } catch (Exception $e) {
-            error_log("Database Connection Exception: " . $e->getMessage());
             return false;
         }
     }
@@ -67,20 +64,17 @@ class db_connection
             }
 
             if ($this->db === null || $this->db->connect_error) {
-                error_log("Database not connected for write query");
                 return false;
             }
 
             $result = $this->db->query($query);
 
             if ($result === false) {
-                error_log("Query Error: " . $this->db->error . " | Query: " . $query);
                 return false;
             }
 
             return true;
         } catch (Exception $e) {
-            error_log("Write Query Exception: " . $e->getMessage());
             return false;
         }
     }
@@ -98,14 +92,12 @@ class db_connection
             }
 
             if ($this->db === null || $this->db->connect_error) {
-                error_log("Database not connected for fetch all query");
                 return false;
             }
 
             $result = $this->db->query($query);
 
             if ($result === false) {
-                error_log("Query Error: " . $this->db->error . " | Query: " . $query);
                 return false;
             }
 
@@ -121,7 +113,6 @@ class db_connection
             $result->free();
             return [];
         } catch (Exception $e) {
-            error_log("Fetch All Exception: " . $e->getMessage());
             return false;
         }
     }
@@ -139,14 +130,12 @@ class db_connection
             }
 
             if ($this->db === null || $this->db->connect_error) {
-                error_log("Database not connected for fetch one query");
                 return false;
             }
 
             $result = $this->db->query($query);
 
             if ($result === false) {
-                error_log("Query Error: " . $this->db->error . " | Query: " . $query);
                 return false;
             }
 
@@ -159,7 +148,6 @@ class db_connection
             $result->free();
             return false;
         } catch (Exception $e) {
-            error_log("Fetch One Exception: " . $e->getMessage());
             return false;
         }
     }

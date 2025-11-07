@@ -7,11 +7,6 @@
 // ====== Error Logging Setup ======
 
 // Ensure logs folder exists
-$logDir = __DIR__ . '/../logs/';
-if (!is_dir($logDir)) {
-    mkdir($logDir, 0775, true);
-}
-
 // Set header early for JSON
     header('Content-Type: application/json; charset=UTF-8');
 
