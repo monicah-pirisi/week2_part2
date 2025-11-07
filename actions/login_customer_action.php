@@ -5,21 +5,16 @@
  */
 
 // ====== Error Logging Setup ======
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
 
 // Ensure logs folder exists
 $logDir = __DIR__ . '/../logs/';
 if (!is_dir($logDir)) {
     mkdir($logDir, 0775, true);
 }
-ini_set('error_log', $logDir . 'login_errors.log');
 
 // Set header early for JSON
-if (!headers_sent()) {
     header('Content-Type: application/json; charset=UTF-8');
-}
+
 
 // ====== Start Session ======
 if (session_status() === PHP_SESSION_NONE) {
@@ -56,7 +51,6 @@ try {
     // Check controller file
     $controller_file = __DIR__ . '/../controllers/customer_controller.php';
     if (!file_exists($controller_file)) {
-        error_log("Login error: Controller file not found at $controller_file");
         $response['message'] = 'System error: Controller file not found.';
         $response['debug']['missing_file'] = $controller_file;
         echo json_encode($response);
@@ -67,7 +61,6 @@ try {
 
     // Check login function
     if (!function_exists('login_customer_ctr')) {
-        error_log("Login error: login_customer_ctr() function not found.");
         $response['message'] = 'System error: Login function unavailable.';
         echo json_encode($response);
         exit();
@@ -100,9 +93,7 @@ try {
     }
 
     // ====== Attempt Login ======
-    error_log("Login attempt for: $email");
     $login_result = login_customer_ctr($email, $password);
-    error_log("Login result: " . json_encode($login_result));
 
     $response['debug']['login_result_type'] = gettype($login_result);
 
@@ -120,12 +111,10 @@ try {
         $_SESSION['logged_in']    = true;
         $_SESSION['login_time']   = time();
 
-        error_log("Login successful for user ID: " . $_SESSION['user_id']);
 
         $response = [
             'status' => 'success',
             'message' => 'Login successful! Redirecting...',
-            'redirect' => '../dashboard.php',
             'user' => [
                 'name' => $_SESSION['user_name'],
                 'role' => $_SESSION['user_role']
@@ -135,12 +124,10 @@ try {
     } else {
         $response['status'] = 'error';
         $response['message'] = $login_result['message'] ?? 'Invalid email or password.';
-        error_log("Login failed for email: $email - " . $response['message']);
     }
 
 } catch (Throwable $e) {
     // Handle any fatal or uncaught errors safely
-    error_log("Login exception: {$e->getMessage()} in {$e->getFile()} on line {$e->getLine()}");
 
     $response['status'] = 'error';
     $response['message'] = 'An unexpected error occurred. Please try again later.';

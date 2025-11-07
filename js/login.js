@@ -1,5 +1,5 @@
-$(document).ready(function() {
-    $('#login-form').submit(function(e) {
+$(document).ready(function () {
+    $('#login-form').submit(function (e) {
         e.preventDefault();
 
         // Get form values
@@ -56,7 +56,7 @@ $(document).ready(function() {
                 password: password
             },
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 // Reset button state
                 submitBtn.prop('disabled', false).html(originalText);
 
@@ -68,11 +68,11 @@ $(document).ready(function() {
                         text: response.message,
                         timer: 2000,
                         showConfirmButton: false
-                    }).then(function() {
+                    }).then(function () {
                         // Redirect to dashboard
-                        if (response.redirect) {
-                            window.location.href = response.redirect;
-                        } else {
+                        if (response.status === 'success'
+                        ) {
+
                             window.location.href = '../dashboard.php';
                         }
                     });
@@ -85,24 +85,24 @@ $(document).ready(function() {
                     });
                 }
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 // Reset button state
                 submitBtn.prop('disabled', false).html(originalText);
-                
+
                 // Show error message
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
                     text: 'An error occurred while logging in. Please try again.'
                 });
-                
+
                 console.error('Login error:', error);
             }
         });
     });
 
     // Real-time validation
-    $('#email').on('blur', function() {
+    $('#email').on('blur', function () {
         var email = $(this).val().trim();
         if (email !== '' && !isValidEmail(email)) {
             $(this).addClass('is-invalid');
@@ -113,7 +113,7 @@ $(document).ready(function() {
         }
     });
 
-    $('#password').on('blur', function() {
+    $('#password').on('blur', function () {
         var password = $(this).val();
         if (password !== '' && password.length < 6) {
             $(this).addClass('is-invalid');
@@ -125,7 +125,7 @@ $(document).ready(function() {
     });
 
     // Clear validation on input
-    $('.form-control').on('input', function() {
+    $('.form-control').on('input', function () {
         $(this).removeClass('is-invalid');
         hideFieldError($(this));
     });
@@ -141,11 +141,11 @@ function isValidEmail(email) {
 function showValidationErrors(errors) {
     var errorHtml = '<div class="alert alert-danger error-message mt-3">';
     errorHtml += '<ul class="mb-0">';
-    errors.forEach(function(error) {
+    errors.forEach(function (error) {
         errorHtml += '<li>' + error + '</li>';
     });
     errorHtml += '</ul></div>';
-    
+
     $('#login-form').after(errorHtml);
 }
 

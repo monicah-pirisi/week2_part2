@@ -10,7 +10,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Include database class (ensure path is correct)
-require_once __DIR__ . '/db_class.php';
+require_once 'db_class.php';
 
 // Set default timezone
 date_default_timezone_set('UTC');
