@@ -36,7 +36,6 @@ function login_customer_ctr($email, $password)
             );
         }
     } catch (Exception $e) {
-        error_log('Login controller error: ' . $e->getMessage());
         return array(
             'status' => 'error',
             'message' => 'An error occurred during login'
@@ -59,7 +58,6 @@ function get_customer_by_email_ctr($email)
         $customer = new Customer();
         return $customer->getCustomerByEmail($email);
     } catch (Exception $e) {
-        error_log('Get customer by email error: ' . $e->getMessage());
         return false;
     }
 }
@@ -80,7 +78,6 @@ function register_customer_ctr($name, $email, $password, $phone_number, $country
     try {
         // Validate inputs
         if (empty($name) || empty($email) || empty($password)) {
-            error_log('Registration error: Missing required fields');
             return false;
         }
         
@@ -93,7 +90,6 @@ function register_customer_ctr($name, $email, $password, $phone_number, $country
         
         return false;
     } catch (Exception $e) {
-        error_log('Registration controller error: ' . $e->getMessage());
         return false;
     }
 }
@@ -113,7 +109,7 @@ function get_customer_by_id_ctr($customer_id)
         $customer = new Customer();
         return $customer->getCustomerById($customer_id);
     } catch (Exception $e) {
-        error_log('Get customer by ID error: ' . $e->getMessage());
+
         return false;
     }
 }
@@ -134,7 +130,6 @@ function update_customer_ctr($customer_id, $data)
         $customer = new Customer();
         return $customer->updateCustomer($customer_id, $data);
     } catch (Exception $e) {
-        error_log('Update customer error: ' . $e->getMessage());
         return false;
     }
 }
@@ -154,7 +149,6 @@ function delete_customer_ctr($customer_id)
         $customer = new Customer();
         return $customer->deleteCustomer($customer_id);
     } catch (Exception $e) {
-        error_log('Delete customer error: ' . $e->getMessage());
         return false;
     }
 }
@@ -169,7 +163,6 @@ function get_all_customers_ctr()
         $customer = new Customer();
         return $customer->getAllCustomers();
     } catch (Exception $e) {
-        error_log('Get all customers error: ' . $e->getMessage());
         return false;
     }
 }
@@ -191,7 +184,6 @@ function change_password_ctr($customer_id, $old_password, $new_password)
         $customer = new Customer();
         return $customer->changePassword($customer_id, $old_password, $new_password);
     } catch (Exception $e) {
-        error_log('Change password error: ' . $e->getMessage());
         return false;
     }
 }
